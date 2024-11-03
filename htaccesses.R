@@ -20,11 +20,20 @@ count_found <- function(n, line, ...) {
 }
 
 htaccesses <- archive_lines("htaccesses.tar") %>%
+    filter(path != "srv/subdomains/.htaccess") %>%
+    filter(! grepl("srv/subdomains/[^/]*.epfl.ch/[^/]*.epfl.ch", path)) %>%
+    separate_wider_regex(
+        path, c("srv/", wp_env = "[^/]*", "/", host = "[^/]*",
+                "/htdocs", uri_path = ".*", ".htaccess"),
+        cols_remove = FALSE) %>%
     mutate(.by = path,
            wordpress_block_step = accumulate(
                line, .init=0,
                count_found, "# BEGIN WordPress", "# END WordPress") %>%
-               .[-1])
+               .[-1]) %>%
+    separate_wider_delim(line, " ", names=c("cmd", "args"),
+                         too_few="align_start", too_many="merge",
+                         cols_remove=FALSE)
 
 wordpress_section_anomalies <-
     htaccesses %>%
