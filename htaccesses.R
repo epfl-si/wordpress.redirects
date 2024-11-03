@@ -25,3 +25,8 @@ htaccesses <- archive_lines("htaccesses.tar") %>%
                line, .init=0,
                count_found, "# BEGIN WordPress", "# END WordPress") %>%
                .[-1])
+
+wordpress_section_anomalies <-
+    htaccesses %>%
+    filter((line == "# BEGIN WordPress" & wordpress_block_step != 1) |
+           (line == "# END WordPress" &   wordpress_block_step != 2))
