@@ -27,6 +27,7 @@ htaccesses <- archive_lines("htaccesses.tar") %>%
                 "/htdocs", uri_path = ".*", ".htaccess"),
         cols_remove = FALSE) %>%
     mutate(.by = path,
+           line = sub("^ *", "", line),
            wordpress_block_step = accumulate(
                line, .init=0,
                count_found, "# BEGIN WordPress", "# END WordPress") %>%
@@ -34,6 +35,11 @@ htaccesses <- archive_lines("htaccesses.tar") %>%
     separate_wider_delim(line, " ", names=c("cmd", "args"),
                          too_few="align_start", too_many="merge",
                          cols_remove=FALSE)
+
+redirects <- htaccesses %>%
+    filter(wordpress_block_step != 1 &
+           cmd %in% c("RewriteCond", "RewriteRule",
+                      "redirect", "Redirect", "RedirectMatch"))
 
 wordpress_section_anomalies <-
     htaccesses %>%
