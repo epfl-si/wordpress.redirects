@@ -6,7 +6,7 @@ archive_lines <- function(archive_filename) {
         rowwise %>%
         reframe(archive_read(archive_filename, path) %>%
                 read_lines %>%
-                tibble(path=path, line=.))
+                tibble(path=str_glue("/{ path }"), line=.))
 }
 
 count_found <- function(n, line, ...) {
@@ -20,10 +20,10 @@ count_found <- function(n, line, ...) {
 }
 
 htaccesses <- archive_lines("htaccesses.tar") %>%
-    filter(path != "srv/subdomains/.htaccess") %>%
-    filter(! grepl("srv/subdomains/[^/]*.epfl.ch/[^/]*.epfl.ch", path)) %>%
+    filter(path != "/srv/subdomains/.htaccess") %>%
+    filter(! grepl("/srv/subdomains/[^/]*.epfl.ch/[^/]*.epfl.ch", path)) %>%
     separate_wider_regex(
-        path, c("srv/", wp_env = "[^/]*", "/", host = "[^/]*",
+        path, c("/srv/", wp_env = "[^/]*", "/", host = "[^/]*",
                 "/htdocs", uri_path = ".*", ".htaccess"),
         cols_remove = FALSE) %>%
     mutate(.by = path,
