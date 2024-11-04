@@ -47,3 +47,9 @@ redirects %>% count(wp_env, cmd) %>%
 ```{r drilldown_www, echo = FALSE}
 redirects %>% filter(wp_env == "www" & cmd %in% c("Redirect", "redirect")) %>% count(uri_path) %>% arrange(desc(n))
 ```
+
+# `RewriteRule`s dans subdomains
+
+```{r drilldown_subdomains, echo = FALSE}
+redirects %>% filter(cmd == "RewriteRule" & wp_env == "subdomains") %>% count(host) %>% arrange(desc(n))
+```
