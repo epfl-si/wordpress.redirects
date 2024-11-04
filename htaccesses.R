@@ -39,7 +39,12 @@ htaccesses <- archive_lines("htaccesses.tar") %>%
 redirects <- htaccesses %>%
     filter(wordpress_block_step != 1 &
            cmd %in% c("RewriteCond", "RewriteRule",
-                      "redirect", "Redirect", "RedirectMatch"))
+                      "redirect", "Redirect", "RedirectMatch")) %>%
+    mutate(is_protect_medias_for_inside = (
+        cmd == "RewriteRule" &
+        wp_env == "inside" &
+        grepl("wp-content/plugins/epfl-intranet/inc/protect-medias.php",
+              line, fixed = TRUE)))
 
 wordpress_section_anomalies <-
     htaccesses %>%

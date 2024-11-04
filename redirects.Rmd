@@ -22,8 +22,9 @@ library(ggtext)
 redirects %>% count(wp_env, cmd) %>%
     mutate(rank = rank(-n),
            group = ifelse(rank > 5, "Autres",
-                          str_glue("<i>{cmd}</i> dans {wp_env}"))) %>%
-    mutate(.by = group, label = str_glue("{ group } ({ sum(n) })")) %>%
+                          str_glue("<i>{cmd}</i> dans {wp_env}")),
+           dagger = ifelse(wp_env == "inside" & cmd == "RewriteRule", "<sup>†</sup>", "")) %>%
+    mutate(.by = group, label = str_glue("{ group } ({ sum(n) }){ dagger }")) %>%
     mutate(label = fct_reorder(label, desc(n))) %>%
     ggplot(aes(x="", y=n, fill=label)) +
     geom_bar(stat="identity", width=1) +
@@ -37,3 +38,5 @@ redirects %>% count(wp_env, cmd) %>%
         plot.caption = element_markdown()
     )
 ```
+
+<sup>†</sup> Après élimination des `RewriteRule`s qui servent à authentifier les accès aux média
